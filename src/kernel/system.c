@@ -181,6 +181,7 @@ PUBLIC void sys_task()
 	    case SYS_SYSCTL:	r = do_sysctl(&m);	break;
 	    case SYS_PUTS:	r = do_puts(&m);	break;
 	    case SYS_FINDPROC:	r = do_findproc(&m);	break;
+      case SYS_SETGROUP: r = do_setGroup(&m); break;
 	    default:		r = E_BAD_FCN;
 	}
 
@@ -189,6 +190,14 @@ PUBLIC void sys_task()
   }
 }
 
+PRIVATE int do_setGroup(m_ptr)
+register message *m_ptr;	/* pointer to request message */
+{
+  struct proc *rpp;
+  rpp = proc_addr(m_ptr->m1_i1);
+  rpp->group_nr = m_ptr->m1_i2;
+  printf("Group number of process %d is set to %d\n", m_ptr->m1_i1, m_ptr->m1_i2);
+}
 
 /*===========================================================================*
  *				do_fork					     *
@@ -235,6 +244,8 @@ register message *m_ptr;	/* pointer to request message */
   rpc->sys_time = 0;
   rpc->child_utime = 0;
   rpc->child_stime = 0;
+
+  rpc->group_nr = 0;
 
   return(OK);
 }

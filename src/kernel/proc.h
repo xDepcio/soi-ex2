@@ -58,6 +58,7 @@ struct proc {
   unsigned p_pendcount;		/* count of pending and unfinished signals */
 
   char p_name[16];		/* name of the process */
+  int group_nr;			 /* group number of the process */
 };
 
 /* Guard word for task stacks. */

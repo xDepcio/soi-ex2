@@ -66,6 +66,40 @@ PUBLIC void main()
   }
 }
 
+PUBLIC int do_setGroup()
+{
+	/*int i;
+	int found = 0;
+
+	proc_addr(mm_in.m1_i1)->group_nr = mm_in.m1_i2;
+
+	return OK;*/
+  int proc_nr;
+	message m;
+  for (proc_nr = 0; proc_nr < NR_PROCS; proc_nr++) {
+    if (mproc[proc_nr].mp_pid == mm_in.m1_i1) {
+      break;
+    }
+  }
+
+	m = mm_in;
+  m.m1_i1 = proc_nr;
+	_taskcall(SYSTASK, SYS_SETGROUP, &m);
+
+	/*for (i = 0; i < NR_PROCS; i++) {
+	if (mproc[i].mp_pid == mm_in.m1_i1) {
+		mproc[i].group_nr = mm_in.m1_i2;
+		found = 1;
+		break;
+	}
+	}
+	if (found) {
+	return OK;
+	} else {
+	return ENOENT;
+	}*/
+}
+
 
 /*===========================================================================*
  *				get_work				     *

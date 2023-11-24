@@ -3,6 +3,8 @@
 struct mproc;
 struct stat;
 
+_PROTOTYPE( int do_setGroup, (void) );
+
 /* alloc.c */
 _PROTOTYPE( phys_clicks alloc_mem, (phys_clicks clicks)			);
 _PROTOTYPE( void free_mem, (phys_clicks base, phys_clicks clicks)	);
