@@ -13,6 +13,10 @@ int main(int argc, char *argv[]) {
     }
 
     group_nr = atoi(argv[1]);
+    if(group_nr < 1 || group_nr > 3) {
+        printf("Group number must be 0 - A, 1 - B or 2 - C.\n");
+        return 1;
+    }
     my_pid = getpid();
 
     m.m1_i1 = my_pid;

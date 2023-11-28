@@ -1,6 +1,14 @@
 #ifndef PROC_H
 #define PROC_H
 
+#define GROUP_A 0
+#define GROUP_B 1
+#define GROUP_C 2
+#define GROUPS_CNT 3
+#define GROUP_A_RATE 1
+#define GROUP_B_RATE 2
+#define GROUP_C_RATE 4
+
 /* Here is the declaration of the process table.  It contains the process'
  * registers, memory map, accounting, and message send/receive information.
  * Many assembly code routines reference fields in it.  The offsets to these

@@ -184,15 +184,13 @@ PRIVATE void do_clocktick()
   /* If a user process has been running too long, pick another one. */
   if (--sched_ticks == 0) {
     if (bill_ptr == prev_ptr) lock_sched();	/* process has run too long */
-    if(rdy_head[USER_Q]->group_nr == 0)
-      sched_ticks = SCHED_RATE;
-    else if(rdy_head[USER_Q]->group_nr == 1)
-      sched_ticks = SCHED_RATE*2;
-    else if(rdy_head[USER_Q]->group_nr == 2)
-      sched_ticks = SCHED_RATE*4;
+    if(rdy_head[USER_Q]->group_nr == GROUP_B)
+      sched_ticks = SCHED_RATE*GROUP_B_RATE;
+    else if(rdy_head[USER_Q]->group_nr == GROUP_C)
+      sched_ticks = SCHED_RATE*GROUP_C_RATE;
     else
       sched_ticks = SCHED_RATE;		/* reset quantum */
-    printf("sched_ticks: %d, group_nr: %d\n", sched_ticks, rdy_head[USER_Q]->group_nr);
+    printf("sched_ticks: %d, group_nr: %d, pid: %d\n", sched_ticks, rdy_head[USER_Q]->group_nr, rdy_head[USER_Q]->p_pid);
     prev_ptr = bill_ptr;			/* new previous process */
   }
 }

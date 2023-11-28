@@ -67,6 +67,7 @@ PUBLIC void main()
   for (t = -NR_TASKS; t <= LOW_USER; ++t) {
 	rp = proc_addr(t);			/* t's process slot */
 	ttp = &tasktab[t + NR_TASKS];		/* t's task attributes */
+	rp->group_nr = GROUP_A;
 	strcpy(rp->p_name, ttp->name);
 	if (t < 0) {
 		if (ttp->stksize > 0) {
@@ -130,6 +131,7 @@ PUBLIC void main()
   }
 
   proc[NR_TASKS+INIT_PROC_NR].p_pid = 1;/* INIT of course has pid 1 */
+  proc[NR_TASKS+INIT_PROC_NR].group_nr = GROUP_A;
   bill_ptr = proc_addr(IDLE);		/* it has to point somewhere */
   proc_addr(IDLE)->p_priority = PPRI_IDLE;
   lock_pick_proc();

@@ -46,7 +46,7 @@ FORWARD _PROTOTYPE( void cp_mess, (int src, struct proc *src_p, message *src_m,
 #endif
 
 /*===========================================================================*
- *				interrupt				     * 
+ *				interrupt				     *
  *===========================================================================*/
 PUBLIC void interrupt(task)
 int task;			/* number of task to be started */
@@ -116,7 +116,7 @@ int task;			/* number of task to be started */
 }
 
 /*===========================================================================*
- *				sys_call				     * 
+ *				sys_call				     *
  *===========================================================================*/
 PUBLIC int sys_call(function, src_dest, m_ptr)
 int function;			/* SEND, RECEIVE, or BOTH */
@@ -137,7 +137,7 @@ message *m_ptr;			/* pointer to message */
   rp = proc_ptr;
 
   if (isuserp(rp) && function != BOTH) return(E_NO_PERM);
-  
+
   /* The parameters are ok. Do the call. */
   if (function & SEND) {
 	/* Function = SEND or BOTH. */
@@ -153,7 +153,7 @@ message *m_ptr;			/* pointer to message */
 }
 
 /*===========================================================================*
- *				mini_send				     * 
+ *				mini_send				     *
  *===========================================================================*/
 PRIVATE int mini_send(caller_ptr, dest, m_ptr)
 register struct proc *caller_ptr;	/* who is trying to send a message? */
@@ -175,7 +175,7 @@ message *m_ptr;			/* pointer to message buffer */
   if (isemptyp(dest_ptr)) return(E_BAD_DEST);	/* dead dest */
 
 #if ALLOW_GAP_MESSAGES
-  /* This check allows a message to be anywhere in data or stack or gap. 
+  /* This check allows a message to be anywhere in data or stack or gap.
    * It will have to be made more elaborate later for machines which
    * don't have the gap mapped.
    */
@@ -184,7 +184,7 @@ message *m_ptr;			/* pointer to message buffer */
   vhi = (vb + MESS_SIZE - 1) >> CLICK_SHIFT;	/* vir click for top of msg */
   if (vlo < caller_ptr->p_map[D].mem_vir || vlo > vhi ||
       vhi >= caller_ptr->p_map[S].mem_vir + caller_ptr->p_map[S].mem_len)
-        return(EFAULT); 
+        return(EFAULT);
 #else
   /* Check for messages wrapping around top of memory or outside data seg. */
   vb = (vir_bytes) m_ptr;
@@ -237,7 +237,7 @@ message *m_ptr;			/* pointer to message buffer */
 }
 
 /*===========================================================================*
- *				mini_rec				     * 
+ *				mini_rec				     *
  *===========================================================================*/
 PRIVATE int mini_rec(caller_ptr, src, m_ptr)
 register struct proc *caller_ptr;	/* process trying to get message */
@@ -247,7 +247,7 @@ message *m_ptr;			/* pointer to message buffer */
 /* A process or task wants to get a message.  If one is already queued,
  * acquire it and deblock the sender.  If no message from the desired source
  * is available, block the caller.  No need to check parameters for validity.
- * Users calls are always sendrec(), and mini_send() has checked already.  
+ * Users calls are always sendrec(), and mini_send() has checked already.
  * Calls from the tasks, MM, and FS are trusted.
  */
 
@@ -297,7 +297,7 @@ message *m_ptr;			/* pointer to message buffer */
 }
 
 /*===========================================================================*
- *				pick_proc				     * 
+ *				pick_proc				     *
  *===========================================================================*/
 PRIVATE void pick_proc()
 {
@@ -328,7 +328,7 @@ PRIVATE void pick_proc()
 }
 
 /*===========================================================================*
- *				ready					     * 
+ *				ready					     *
  *===========================================================================*/
 PRIVATE void ready(rp)
 register struct proc *rp;	/* this process is now runnable */
@@ -371,7 +371,7 @@ register struct proc *rp;	/* this process is now runnable */
 }
 
 /*===========================================================================*
- *				unready					     * 
+ *				unready					     *
  *===========================================================================*/
 PRIVATE void unready(rp)
 register struct proc *rp;	/* this process is no longer runnable */
@@ -429,7 +429,7 @@ register struct proc *rp;	/* this process is no longer runnable */
 }
 
 /*===========================================================================*
- *				sched					     * 
+ *				sched					     *
  *===========================================================================*/
 PRIVATE void sched()
 {
@@ -437,6 +437,9 @@ PRIVATE void sched()
  * process is runnable, put the current process on the end of the user queue,
  * possibly promoting another user to head of the queue.
  */
+  int next_group_nr;
+  struct proc *curr_proc;
+  struct proc *prev_proc;
 
   if (rdy_head[USER_Q] == NIL_PROC) return;
 
@@ -445,6 +448,27 @@ PRIVATE void sched()
   rdy_tail[USER_Q] = rdy_head[USER_Q];
   rdy_head[USER_Q] = rdy_head[USER_Q]->p_nextready;
   rdy_tail[USER_Q]->p_nextready = NIL_PROC;
+
+  next_group_nr = (rdy_tail[USER_Q]->group_nr + 1) % GROUPS_CNT;
+  curr_proc = rdy_head[USER_Q];
+  prev_proc = NIL_PROC;
+  while (curr_proc->group_nr != next_group_nr) {
+    if(curr_proc == rdy_tail[USER_Q]) {
+      next_group_nr = (next_group_nr + 1) % GROUPS_CNT;
+      curr_proc = rdy_head[USER_Q];
+      prev_proc = NIL_PROC;
+    }
+    else {
+      prev_proc = curr_proc;
+      curr_proc = curr_proc->p_nextready;
+    }
+  }
+  if(prev_proc != NIL_PROC) {
+    prev_proc->p_nextready = curr_proc->p_nextready;
+    curr_proc->p_nextready = rdy_head[USER_Q];
+    rdy_head[USER_Q] = curr_proc;
+  }
+
   pick_proc();
 }
 
@@ -553,7 +577,7 @@ message *dst_m;			/* destination buffer */
 {
   /* convert virtual address to physical address */
   /* The caller has already checked if all addresses are within bounds */
-  
+
   src_m = (message *)((char *)src_m + (((phys_bytes)src_p->p_map[D].mem_phys
 				- src_p->p_map[D].mem_vir) << CLICK_SHIFT));
   dst_m = (message *)((char *)dst_m + (((phys_bytes)dst_p->p_map[D].mem_phys
